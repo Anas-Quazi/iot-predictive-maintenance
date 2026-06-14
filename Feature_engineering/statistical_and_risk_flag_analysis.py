@@ -24,10 +24,10 @@ def create_statistical_features(df_feat):
     Returns: df with new statistical feature columns added
     """
 
-    df_feat['rpm_zscore']       = (df_feat['rpm']       - df_feat['rpm'].mean())       / df_feat['rpm'].std()
-    df_feat['torque_zscore']    = (df_feat['torque']    - df_feat['torque'].mean())    / df_feat['torque'].std()
+    df_feat['rpm_zscore']       = (df_feat['Rotational speed [rpm]']       - df_feat['Rotational speed [rpm]'].mean())       / df_feat['Rotational speed [rpm]'].std()
+    df_feat['torque_zscore']    = (df_feat['Torque [Nm]']    - df_feat['Torque [Nm]'].mean())    / df_feat['Torque [Nm]'].std()
     df_feat['power_zscore']     = (df_feat['power']     - df_feat['power'].mean())     / df_feat['power'].std()
-    df_feat['wear_zscore']      = (df_feat['tool_wear'] - df_feat['tool_wear'].mean()) / df_feat['tool_wear'].std()
+    df_feat['wear_zscore']      = (df_feat['Tool wear [min]'] - df_feat['Tool wear [min]'].mean()) / df_feat['Tool wear [min]'].std()
     df_feat['temp_diff_zscore'] = (df_feat['temp_diff'] - df_feat['temp_diff'].mean()) / df_feat['temp_diff'].std()
 
     zscore_cols = ['rpm_zscore', 'torque_zscore', 'power_zscore', 'wear_zscore', 'temp_diff_zscore']
@@ -60,9 +60,9 @@ def create_risk_flag_features(df_feat):
     """
 
     # General Risk Flags
-    df_feat['high_wear_flag']   = (df_feat['tool_wear'] > 200).astype(int)
-    df_feat['high_torque_flag'] = (df_feat['torque'] > 60).astype(int)
-    df_feat['low_rpm_flag']     = (df_feat['rpm'] < 1400).astype(int)
+    df_feat['high_wear_flag']   = (df_feat['Tool wear [min]'] > 200).astype(int)
+    df_feat['high_torque_flag'] = (df_feat['Torque [Nm]'] > 60).astype(int)
+    df_feat['low_rpm_flag']     = (df_feat['Rotational speed [rpm]'] < 1400).astype(int)
     df_feat['high_temp_flag']   = (df_feat['temp_diff'] > 15).astype(int)
 
     power_mean = df_feat['power'].mean()
