@@ -10,13 +10,7 @@ from scipy import stats
 
 
 #Outlier Analysis
-def outlier_analysis():
-        # Load dataset
-    BASE_DIR = Path().resolve().parent
-    df = pd.read_csv(BASE_DIR / 'Dataset' / 'ai4i2020_cleaned.csv')
-
-    # working copy
-    df_feat = df.copy()
+def outlier_analysis(df_feat):
 
     # ── IQR ──────────────────────────────────────────────────────────────────
     def iqr_outlier_flag(df, col):
@@ -49,13 +43,7 @@ def outlier_analysis():
     return df_feat
 
 #Threshold Bsed Risk Feature
-def threshold_risk_flags():
-    # Load dataset
-    BASE_DIR = Path().resolve().parent
-    df = pd.read_csv(BASE_DIR / 'Dataset' / 'ai4i2020_cleaned.csv')
-
-    # working copy
-    df_feat = df.copy()
+def threshold_risk_flags(df_feat):
 
     # Recreate derived features needed for threshold flags
     df_feat['power']        = df_feat['Torque [Nm]'] * df_feat['Rotational speed [rpm]']
