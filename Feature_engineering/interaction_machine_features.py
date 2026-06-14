@@ -5,14 +5,6 @@ from pathlib import Path
 
 warnings.filterwarnings('ignore')
 
-# ── Load Data ──────────────────────────────────────────────────────────────────
-BASE_DIR = Path(__file__).resolve().parent
-df = pd.read_csv(BASE_DIR / 'ai4i2020_cleaned.csv')
-
-print(f"Loaded: {df.shape}")
-print("Columns:", df.columns.tolist())
-
-
 # ── 2. Physics Features ────────────────────────────────────────────────────────
 def create_physics_features(df_input):
     """
