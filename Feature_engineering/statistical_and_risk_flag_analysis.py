@@ -1,10 +1,18 @@
+from pathlib import Path
 import pandas as pd
 import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
 
+# Load dataset
+BASE_DIR = Path(__file__).resolve().parent.parent
+csv_path = BASE_DIR / 'Dataset' / 'ai4i2020_cleaned.csv'
+df = pd.read_csv(csv_path)
 
-def create_statistical_features(df):
+# Working Copy
+df_feat = df.copy()
+
+def create_statistical_features(df_feat):
     """
     Creates Z-Score statistical features on top of physical features.
     Requires: power, temp_diff already in df (from physics features).
@@ -16,11 +24,11 @@ def create_statistical_features(df):
     Returns: df with new statistical feature columns added
     """
 
-    df['rpm_zscore']       = (df['rpm']       - df['rpm'].mean())       / df['rpm'].std()
-    df['torque_zscore']    = (df['torque']    - df['torque'].mean())    / df['torque'].std()
-    df['power_zscore']     = (df['power']     - df['power'].mean())     / df['power'].std()
-    df['wear_zscore']      = (df['tool_wear'] - df['tool_wear'].mean()) / df['tool_wear'].std()
-    df['temp_diff_zscore'] = (df['temp_diff'] - df['temp_diff'].mean()) / df['temp_diff'].std()
+    df_feat['rpm_zscore']       = (df_feat['rpm']       - df_feat['rpm'].mean())       / df_feat['rpm'].std()
+    df_feat['torque_zscore']    = (df_feat['torque']    - df_feat['torque'].mean())    / df_feat['torque'].std()
+    df_feat['power_zscore']     = (df_feat['power']     - df_feat['power'].mean())     / df_feat['power'].std()
+    df_feat['wear_zscore']      = (df_feat['tool_wear'] - df_feat['tool_wear'].mean()) / df_feat['tool_wear'].std()
+    df_feat['temp_diff_zscore'] = (df_feat['temp_diff'] - df_feat['temp_diff'].mean()) / df_feat['temp_diff'].std()
 
     zscore_cols = ['rpm_zscore', 'torque_zscore', 'power_zscore', 'wear_zscore', 'temp_diff_zscore']
 
@@ -30,13 +38,13 @@ def create_statistical_features(df):
     print(f"  {'Feature':<25} {'Mean':>8} {'Std':>8} {'Extreme (>3σ)':>15}")
     print("  " + "-" * 58)
     for col in zscore_cols:
-        extreme = (df[col].abs() > 3).sum()
-        print(f"  {col:<25} {df[col].mean():>8.2f} {df[col].std():>8.2f} {extreme:>15}")
+        extreme = (df_feat[col].abs() > 3).sum()
+        print(f"  {col:<25} {df_feat[col].mean():>8.2f} {df_feat[col].std():>8.2f} {extreme:>15}")
 
-    return df
+    return df_feat      
 
 
-def create_risk_flag_features(df):
+def create_risk_flag_features(df_feat):
     """
     Creates binary general risk flag features based on threshold conditions.
     Requires: power, temp_diff already in df (from physics features).
@@ -52,16 +60,16 @@ def create_risk_flag_features(df):
     """
 
     # General Risk Flags
-    df['high_wear_flag']   = (df['tool_wear'] > 200).astype(int)
-    df['high_torque_flag'] = (df['torque'] > 60).astype(int)
-    df['low_rpm_flag']     = (df['rpm'] < 1400).astype(int)
-    df['high_temp_flag']   = (df['temp_diff'] > 15).astype(int)
+    df_feat['high_wear_flag']   = (df_feat['tool_wear'] > 200).astype(int)
+    df_feat['high_torque_flag'] = (df_feat['torque'] > 60).astype(int)
+    df_feat['low_rpm_flag']     = (df_feat['rpm'] < 1400).astype(int)
+    df_feat['high_temp_flag']   = (df_feat['temp_diff'] > 15).astype(int)
 
-    power_mean = df['power'].mean()
-    power_std  = df['power'].std()
-    df['power_anomaly_flag'] = (
-        (df['power'] < power_mean - 2 * power_std) |
-        (df['power'] > power_mean + 2 * power_std)
+    power_mean = df_feat['power'].mean()
+    power_std  = df_feat['power'].std()
+    df_feat['power_anomaly_flag'] = (
+        (df_feat['power'] < power_mean - 2 * power_std) |
+        (df_feat['power'] > power_mean + 2 * power_std)
     ).astype(int)
 
     flag_cols = [
@@ -75,10 +83,10 @@ def create_risk_flag_features(df):
     print(f"  {'Flag':<25} {'Flagged':>8} {'% Data':>8} {'Actual Fail':>12} {'Precision':>10}")
     print("  " + "-" * 66)
     for col in flag_cols:
-        count     = df[col].sum()
-        pct       = count / len(df) * 100
-        actual    = df[df[col] == 1]['Machine failure'].sum()
+        count     = df_feat[col].sum()
+        pct       = count / len(df_feat) * 100
+        actual    = df_feat[df_feat[col] == 1]['Machine failure'].sum()
         precision = actual / count * 100 if count > 0 else 0
         print(f"  {col:<25} {count:>8} {pct:>7.1f}% {actual:>12} {precision:>9.0f}%")
 
-    return df
+    return df_feat  
