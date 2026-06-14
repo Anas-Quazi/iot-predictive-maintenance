@@ -7,24 +7,17 @@ warnings.filterwarnings('ignore')
 from pathlib import Path
 from scipy import stats
 
-# Load dataset
-BASE_DIR = Path().resolve().parent
-df = pd.read_csv(BASE_DIR / 'Dataset' / 'ai4i2020_cleaned.csv')
 
-# working copy
-df_feat = df.copy()
-
-# Recreate derived features needed for threshold flags
-df_feat['power']        = df_feat['Torque [Nm]'] * df_feat['Rotational speed [rpm]']
-df_feat['temp_diff']    = df_feat['Process temperature [K]'] - df_feat['Air temperature [K]']
-df_feat['strain_index'] = df_feat['Torque [Nm]'] * df_feat['Tool wear [min]']
-
-print("Shape:", df_feat.shape)
-print("Derived features ready: power, temp_diff, strain_index")
 
 #Outlier Analysis
-def outlier_analysis(df_feat):
-    
+def outlier_analysis():
+        # Load dataset
+    BASE_DIR = Path().resolve().parent
+    df = pd.read_csv(BASE_DIR / 'Dataset' / 'ai4i2020_cleaned.csv')
+
+    # working copy
+    df_feat = df.copy()
+
     # ── IQR ──────────────────────────────────────────────────────────────────
     def iqr_outlier_flag(df, col):
         Q1 = df[col].quantile(0.25)
@@ -56,8 +49,21 @@ def outlier_analysis(df_feat):
     return df_feat
 
 #Threshold Bsed Risk Feature
-def threshold_risk_flags(df_feat):
+def threshold_risk_flags():
+    # Load dataset
+    BASE_DIR = Path().resolve().parent
+    df = pd.read_csv(BASE_DIR / 'Dataset' / 'ai4i2020_cleaned.csv')
 
+    # working copy
+    df_feat = df.copy()
+
+    # Recreate derived features needed for threshold flags
+    df_feat['power']        = df_feat['Torque [Nm]'] * df_feat['Rotational speed [rpm]']
+    df_feat['temp_diff']    = df_feat['Process temperature [K]'] - df_feat['Air temperature [K]']
+    df_feat['strain_index'] = df_feat['Torque [Nm]'] * df_feat['Tool wear [min]']
+    
+    print("Shape:", df_feat.shape)
+    print("Derived features ready: power, temp_diff, strain_index\n")
     # ── HDF: Heat Dissipation Failure ─────────────────────────────────────────
     df_feat['hdf_risk_flag'] = (
         (df_feat['temp_diff'] < 8.6) &
