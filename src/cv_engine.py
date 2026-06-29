@@ -86,7 +86,7 @@ def execute_sealed_cv_split(X, y, n_splits=5, random_state=42):
 
 
 if __name__ == "__main__":
-    from src.data_prep import load_and_sanitize_data
+    from data_prep import load_and_sanitize_data
 
     try:
         X, y = load_and_sanitize_data(
