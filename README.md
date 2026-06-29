@@ -122,33 +122,12 @@ pip install -r requirement.txt
 | Module | Status |
 |---|---|
 | Dataset Preprocessing | ✅ Complete |
-| Time Series Logs | ✅ Complete |
 | External Data Fusion | ✅ Complete |
-| Feature Engineering | ✅ Complete |
-| EDA | ✅ Complete |
-| Ablation Study | ✅ Complete |
-| Model Training (LightGBM) | ⏳ Week 3 |
-| SMOTE inside CV folds | ⏳ Week 3 |
-| 5-Fold Stratified Cross-Validation | ⏳ Week 3 |
-| Noise Sensitivity Analysis | ⏳ Week 4 |
-| Precision-Recall Threshold Tuning | ⏳ Week 4 |
-| SHAP Explainability | ⏳ Week 4 |
-| Alert Dashboard | ⏳ Week 4 |
-
----
-
-## Performance Metrics
-
-Ablation study across four progressive dataset versions, benchmarked using LightGBM with 80-20 train-test split:
-
-| Dataset | Features | Accuracy | Precision | Recall | F1 Score |
-|---|---|---|---|---|---|
-| Alpha — Raw sensors only | 5 | 97.25% | 39.47% | 76.92% | 52.17% |
-| Beta — Static engineered features | 49 | 99.10% | 78.38% | 74.36% | 76.32% |
-| Gamma — + Time-series features | 117 | 99.40% | 96.55% | 71.79% | 82.35% |
-| Delta — + External context (final) | 140 | 99.45% | 96.67% | 74.36% | 84.06% |
-
-Each stage shows measurable improvement in F1 score, mathematically proving that both time-series expansion and external contextual fusion meaningfully improve predictive power beyond raw sensor data alone. The Delta dataset achieves the project target Macro F1 ≥ 0.85 and will be further optimized in Week 3 through SMOTE inside cross-validation folds and Precision-Recall threshold tuning.
+| Feature Engineering | 🔄 In Progress |
+| EDA | 🔄 In Progress |
+| Model Training (LightGBM) | ⏳ Planned |
+| SHAP Explainability | ⏳ Planned |
+| Alert Dashboard | ⏳ Planned |
 
 ---
 
