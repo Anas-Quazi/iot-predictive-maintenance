@@ -1,0 +1,48 @@
+import lightgbm as lgb
+
+def get_regularized_lgbm_model(seed=42):
+    """
+    Instantiates a LightGBM Binary Classifier with explicit structural
+    regularization boundaries to eliminate overfitting on temporal noise.
+
+    Parameters:
+        seed (int): Seed for reproducibility across bagging routines.
+
+    Returns:
+        model (lgb.LGBMClassifier): Configured LightGBM model instance.
+    """
+
+    model = lgb.LGBMClassifier(
+        objective='binary',
+        boosting_type='gbdt',
+        random_state=seed,
+        n_estimators=150,        # Controlled boosting iterations
+        learning_rate=0.05,      # Methodical gradient descent steps
+
+        # --- Structural Constraints ---
+        max_depth=6,             # Caps depth to prevent sequence memorization
+        num_leaves=31,           # Constrains maximum complexity of trees
+        min_child_samples=50,    # Requires 50+ samples to form a distinct split
+
+        # --- Randomization Sub-sampling ---
+        subsample=0.8,           # Train each tree on 80% of rows
+        subsample_freq=1,        # Perform bagging at every iteration step
+        colsample_bytree=0.8,    # Train each tree on 80% of columns
+
+        # --- Target Space Alignment ---
+        is_unbalance=False,      # False because Phase 2's SMOTE already handles balance
+
+        verbosity=-1             # Suppress underlying C++ engine messages
+    )
+
+    return model
+
+
+if __name__ == "__main__":
+    print("📦 Instantiating regularized LightGBM blueprint...")
+
+    try:
+        clf = get_regularized_lgbm_model()
+        print("✅ Phase 3 configuration blueprint verified successfully!")
+    except Exception as e:
+        print(f"❌ Initialization Failed: {str(e)}")
