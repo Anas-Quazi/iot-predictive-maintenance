@@ -39,6 +39,10 @@ def load_and_sanitize_data(file_path):
         print(f"warning: found unencoded text columns {string_columns}. dropping from X matrix.")
         X = X.drop(columns=string_columns)
 
+    #todo normalize column header with regex
+    X.columns = X.columns.str.replace(r'[^a-zA-Z0-9_]', '_', regex=True)
+    X.columns = X.columns.str.replace(r'_{2,}', '_', regex=True).str.strip('_')
+    
     #! 4. Data cleanroom invariant audits — hard stops if anything is wrong
     assert not X.isnull().values.any(), \
         "pipeline guardrail tripped: NaN values detected in X matrix."
@@ -57,4 +61,4 @@ if __name__ == "__main__":
     try:
         X, y = load_and_sanitize_data("Dataset/predictive_maintenance_master_features.csv")
     except Exception as e:
-        print(f"local test failed: {str(e)}")
+        print(f"local test failed: {str(e)}") 
