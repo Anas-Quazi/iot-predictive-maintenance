@@ -65,12 +65,13 @@ iot-predictive-maintenance/
 ├── EDA/                        # Exploratory analysis, visualizations
 ├── External_Data_Fusion/       # Environmental feature generation pipeline
 ├── Feature_engineering/        # Statistical & risk flag feature scripts
+├── Src/                        # SMOTE & LightGBM modeling
 ├── performance_metrics.ipynb   # Audit of model performance across dataset versions
 ├── requirement.txt             # Python dependencies
 └── README.md
 ```
 
-> **Branch convention:** Each team member works on a dedicated branch (`dev/shais`, `dev/anas`, `dev/aadi`). All changes are merged into `main` via pull requests.
+> **Branch convention:** Each team member works on a dedicated branch (`dev/shais`, `dev/anas`, `dev/aadi`, `dev/yash`). All changes are merged into `main` via pull requests.
 
 ---
 
