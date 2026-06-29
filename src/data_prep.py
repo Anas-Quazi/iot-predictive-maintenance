@@ -34,7 +34,7 @@ def load_and_sanitize_data(file_path):
 
     #& 3. Catch any leftover string/object columns (e.g. un-encoded categoricals)
     #& and drop them so the matrix stays fully numeric
-    string_columns = X.select_dtypes(include=['object', 'str']).columns.tolist()
+    string_columns = X.select_dtypes(include=['object']).columns.tolist()
     if string_columns:
         print(f"warning: found unencoded text columns {string_columns}. dropping from X matrix.")
         X = X.drop(columns=string_columns)
