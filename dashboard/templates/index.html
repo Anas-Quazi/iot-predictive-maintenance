@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>IoT Predictive Maintenance — Live Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+<header>
+  <h1>⚙ PREDICTIVE MAINTENANCE — LIVE FLEET DASHBOARD</h1>
+  <div id="kpi-bar" class="kpi-bar"></div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="fleet">Fleet Overview</button>
+  <button class="tab-btn" data-tab="detail">Machine Detail</button>
+  <button class="tab-btn" data-tab="manual">Manual / What-If</button>
+  <button class="tab-btn" data-tab="lookup">Timestamp Lookup</button>
+  <button class="tab-btn" data-tab="range">Timestamp Range</button>
+  <button class="tab-btn" data-tab="replay">Session Replay</button>
+  <button class="tab-btn" data-tab="insights">Global Insights</button>
+</nav>
+
+<main>
+  <section id="tab-fleet" class="tab-content active">
+    <h2>Fleet Status <span class="live-dot"></span> Live</h2>
+    <table id="fleet-table">
+      <thead>
+        <tr><th>Machine</th><th>Risk %</th><th>Tier</th><th>Trend</th><th>Primary Reason</th><th>Tool Wear</th><th>Process Temp (K)</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h3 style="margin-top:22px">Recent Alerts</h3>
+    <ul id="alerts-list"></ul>
+  </section>
+
+  <section id="tab-detail" class="tab-content">
+    <h2>Machine Detail</h2>
+    <select id="machine-select"></select>
+    <div class="detail-grid">
+      <div class="card">
+        <h3>Failure Probability</h3>
+        <canvas id="gauge-chart" width="260" height="260"></canvas>
+      </div>
+      <div class="card">
+        <h3>Top SHAP Drivers</h3>
+        <canvas id="shap-chart"></canvas>
+      </div>
+      <div class="card wide">
+        <h3>Sensor Trends</h3>
+        <canvas id="trend-chart"></canvas>
+      </div>
+      <div class="card wide">
+        <h3>Risk Probability Over Time</h3>
+        <canvas id="risk-history-chart"></canvas>
+      </div>
+      <div class="card wide">
+        <h3>Recommended Action</h3>
+        <p id="action-text">—</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-manual" class="tab-content">
+    <h2>Manual / What-If Prediction</h2>
+    <p class="hint">Enter raw readings for a hypothetical machine. Optionally borrow real history from a timestamp so rolling/lag features aren't undefined (cold start).</p>
+    <form id="manual-form">
+      <label>Air Temp (K) <input type="number" step="0.1" name="air_temp" value="298.5" required></label>
+      <label>Process Temp (K) <input type="number" step="0.1" name="process_temp" value="308.9" required></label>
+      <label>Rotational Speed (rpm) <input type="number" name="rpm" value="1450" required></label>
+      <label>Torque (Nm) <input type="number" step="0.1" name="torque" value="45" required></label>
+      <label>Tool Wear (min) <input type="number" name="tool_wear" value="120" required></label>
+      <label>Type
+        <select name="type"><option value="L">Low</option><option value="M" selected>Medium</option><option value="H">High</option></select>
+      </label>
+      <label>Borrow history from timestamp (optional)
+        <input type="text" name="borrow_history_timestamp" placeholder="2026-01-02 10:15:00">
+      </label>
+      <button type="submit">Predict</button>
+    </form>
+    <div id="manual-result" class="result-box"></div>
+    <div class="detail-grid" id="manual-charts" style="display:none">
+      <div class="card">
+        <h3>Entered Values vs. Normal Operating Range</h3>
+        <canvas id="manual-range-chart"></canvas>
+      </div>
+      <div class="card">
+        <h3>Top SHAP Drivers</h3>
+        <canvas id="manual-shap-chart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-lookup" class="tab-content">
+    <h2>Timestamp Lookup</h2>
+    <p class="hint">Enter an exact timestamp from the historical dataset (2026-01-01 00:00:00 to 2026-01-07 22:39:00, 1-min intervals) to see the model's prediction vs. the actual recorded outcome.</p>
+    <form id="lookup-form">
+      <label>Timestamp <input type="text" name="timestamp" value="2026-01-01 00:04:00" required></label>
+      <button type="submit">Lookup</button>
+    </form>
+    <div id="lookup-result" class="result-box"></div>
+  </section>
+
+  <section id="tab-range" class="tab-content">
+    <h2>Timestamp Range — Dataset Insights</h2>
+    <p class="hint">Pick a start and end timestamp from the historical log. Every reading in that window is replayed through the same causal feature pipeline and scored — you get aggregate risk, dominant failure driver, environment context, and a recommendation for the whole window.</p>
+    <form id="range-form">
+      <label>Start Timestamp <input type="text" name="start_timestamp" value="2026-01-01 00:00:00" required></label>
+      <label>End Timestamp <input type="text" name="end_timestamp" value="2026-01-01 04:00:00" required></label>
+      <button type="submit">Analyze Range</button>
+    </form>
+    <div id="range-result"></div>
+  </section>
+
+  <section id="tab-replay" class="tab-content">
+    <h2>Session Replay (fixed time blocks)</h2>
+    <p class="hint">Each "session" is one of 40 equal contiguous time blocks of the real stream, replayed as one virtual machine's lifecycle.</p>
+    <select id="session-select"></select>
+    <button id="replay-btn">Replay Session</button>
+    <div class="card wide">
+      <canvas id="replay-chart"></canvas>
+    </div>
+  </section>
+
+  <section id="tab-insights" class="tab-content">
+    <h2>Global Model Insights</h2>
+    <div class="kpi-grid" id="insights-kpis"></div>
+    <div class="detail-grid">
+      <div class="card">
+        <h3>Global Feature Importance</h3>
+        <canvas id="importance-chart"></canvas>
+      </div>
+      <div class="card">
+        <h3>ROC Curve</h3>
+        <canvas id="roc-chart"></canvas>
+      </div>
+      <div class="card">
+        <h3>Precision-Recall Curve</h3>
+        <canvas id="pr-chart"></canvas>
+      </div>
+      <div class="card">
+        <h3>Predicted Probability Distribution</h3>
+        <canvas id="prob-hist-chart"></canvas>
+      </div>
+      <div class="card">
+        <h3>Failure Type Breakdown (historical, descriptive only)</h3>
+        <canvas id="failure-type-chart"></canvas>
+      </div>
+      <div class="card">
+        <h3>Environment Correlation with Predicted Risk</h3>
+        <canvas id="env-corr-chart"></canvas>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>
